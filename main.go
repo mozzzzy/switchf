@@ -5,8 +5,8 @@ package main
  */
 
 import (
-	"os"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -40,19 +40,19 @@ func configArgOptions() (arguments.Args, error) {
 	var args arguments.Args
 	err := args.AddOptions([]argumentOption.Option{
 		{
-			LongKey: "help",
-			ShortKey: "h",
+			LongKey:     "help",
+			ShortKey:    "h",
 			Description: "Show help message and exit.",
 		},
 		{
-			LongKey: "file",
-			ShortKey: "f",
+			LongKey:     "file",
+			ShortKey:    "f",
 			Description: "Target file path.",
-			ValueType: "string",
+			ValueType:   "string",
 		},
 		{
-			LongKey: "verbose",
-			ShortKey: "v",
+			LongKey:     "verbose",
+			ShortKey:    "v",
 			Description: "Print debug message.",
 		},
 	})
@@ -70,7 +70,7 @@ func parseArgs() (arguments.Args, error) {
 }
 
 func getSwitchFilePaths(targetPath string) ([]string, error) {
-	targetDir := filepath.Dir(targetPath);
+	targetDir := filepath.Dir(targetPath)
 	targetFilePrefix := filepath.Base(targetPath) + "_"
 
 	var targetFiles []string
@@ -85,7 +85,7 @@ func getSwitchFilePaths(targetPath string) ([]string, error) {
 		if file.IsDir() {
 			continue
 		}
-		targetFiles = append(targetFiles, targetDir + "/" + file.Name())
+		targetFiles = append(targetFiles, targetDir+"/"+file.Name())
 	}
 	return targetFiles, nil
 }
@@ -124,7 +124,7 @@ func main() {
 	}
 
 	if args.IsSet("verbose") {
-		DEBUG = true;
+		DEBUG = true
 		debug("--verbose, -v option is set.")
 	}
 
