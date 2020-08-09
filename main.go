@@ -10,8 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mozzzzy/arguments"
-	"github.com/mozzzzy/arguments/argumentOption"
+	"github.com/mozzzzy/arguments/v2"
+	"github.com/mozzzzy/arguments/v2/argumentOption"
+	"github.com/mozzzzy/arguments/v2/argumentOperand"
 	"github.com/mozzzzy/cui/v2"
 	"github.com/mozzzzy/switchf/fileUtil"
 )
@@ -36,7 +37,7 @@ func debug(msg string) {
 	}
 }
 
-func configArgOptions() (arguments.Args, error) {
+func configArgRules() (arguments.Args, error) {
 	var args arguments.Args
 	err := args.AddOptions([]argumentOption.Option{
 		{
@@ -45,23 +46,28 @@ func configArgOptions() (arguments.Args, error) {
 			Description: "Show help message and exit.",
 		},
 		{
-			LongKey:     "file",
-			ShortKey:    "f",
-			Description: "Target file path.",
-			ValueType:   "string",
-		},
-		{
 			LongKey:     "verbose",
 			ShortKey:    "v",
 			Description: "Print debug message.",
 		},
 	})
+	if err != nil {
+		return args, err
+	}
 
+	err = args.AddOperands([]argumentOperand.Operand{
+		{
+			Key:         "filepath",
+			Description: "Target file path",
+			ValueType:   "string",
+			Required:    true,
+		},
+	})
 	return args, err
 }
 
 func parseArgs() (arguments.Args, error) {
-	args, err := configArgOptions()
+	args, err := configArgRules()
 	if err != nil {
 		return args, err
 	}
@@ -107,30 +113,27 @@ func main() {
 	debug("switchf start.")
 
 	args, err := parseArgs()
-	if err != nil {
-		cui.Error("Failed to parse arguments.")
-		cui.Error(err.Error())
-		return
-	}
 
-	if args.IsSet("help") {
+	if args.OptIsSet("help") {
 		cui.Message(args.String(), []string{})
 		return
 	}
 
-	if !args.IsSet("file") {
-		cui.Error("Please specify --file, -f TARGET_FILE_PATH")
+	if err != nil {
+		cui.Error("Failed to parse arguments.")
+		cui.Error(err.Error())
+		cui.Message(args.String(), []string{})
 		return
 	}
 
-	if args.IsSet("verbose") {
+	if args.OptIsSet("verbose") {
 		DEBUG = true
 		debug("--verbose, -v option is set.")
 	}
 
-	targetPath, err := args.GetString("file")
+	targetPath, err := args.GetStringOperand("filepath")
 	if err != nil {
-		cui.Error("Failed to get file path from --file -f option.")
+		cui.Error("Failed to get filepath from arguments.")
 		cui.Error(err.Error())
 		return
 	}
